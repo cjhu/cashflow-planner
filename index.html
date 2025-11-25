@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cash Flow Planner</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0f1a;
+            --bg-secondary: #111827;
+            --bg-card: #1a2234;
+            --bg-input: #0d1421;
+            --border: #2a3a52;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --accent-green: #10b981;
+            --accent-green-dim: #064e3b;
+            --accent-red: #ef4444;
+            --accent-red-dim: #7f1d1d;
+            --accent-amber: #f59e0b;
+            --accent-amber-dim: #78350f;
+            --accent-blue: #3b82f6;
+            --accent-blue-dim: #1e3a5f;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(ellipse at 20% 0%, rgba(16, 185, 129, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 100%, rgba(59, 130, 246, 0.08) 0%, transparent 50%);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: fadeInDown 0.6s ease-out;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-green) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .month-selector {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            animation: fadeInUp 0.6s ease-out 0.1s both;
+        }
+
+        .month-selector select,
+        .month-selector input {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .month-selector select:hover,
+        .month-selector input:hover {
+            border-color: var(--accent-blue);
+        }
+
+        .month-selector select:focus,
+        .month-selector input:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px var(--accent-blue-dim);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 900px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            animation: fadeInUp 0.6s ease-out both;
+        }
+
+        .card:nth-child(1) { animation-delay: 0.2s; }
+        .card:nth-child(2) { animation-delay: 0.3s; }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card-title .icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+        }
+
+        .icon-income {
+            background: var(--accent-green-dim);
+            color: var(--accent-green);
+        }
+
+        .icon-expense {
+            background: var(--accent-red-dim);
+            color: var(--accent-red);
+        }
+
+        .balance-card {
+            grid-column: 1 / -1;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .balance-input-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .balance-input-group label {
+            display: block;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .balance-input {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .currency-symbol {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.5rem;
+            color: var(--text-muted);
+        }
+
+        .balance-input input {
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.5rem;
+            width: 200px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .balance-input input:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px var(--accent-blue-dim);
+        }
+
+        .summary-stats {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.25rem;
+            font-weight: 500;
+        }
+
+        .stat-value.positive { color: var(--accent-green); }
+        .stat-value.negative { color: var(--accent-red); }
+        .stat-value.warning { color: var(--accent-amber); }
+
+        .entry-form {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .entry-form input {
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 0.625rem 0.875rem;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .entry-form input:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px var(--accent-blue-dim);
+        }
+
+        .entry-form input[type="text"] {
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .entry-form input[type="number"] {
+            width: 100px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .entry-form input[type="date"] {
+            width: 140px;
+        }
+
+        .btn {
+            background: var(--accent-blue);
+            color: white;
+            border: none;
+            padding: 0.625rem 1rem;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: transform 0.1s, box-shadow 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-income {
+            background: var(--accent-green);
+        }
+
+        .btn-income:hover {
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-expense {
+            background: var(--accent-red);
+        }
+
+        .btn-expense:hover {
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+        }
+
+        .entries-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .entries-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .entries-list::-webkit-scrollbar-track {
+            background: var(--bg-input);
+            border-radius: 3px;
+        }
+
+        .entries-list::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 3px;
+        }
+
+        .entry-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            transition: background 0.2s;
+        }
+
+        .entry-item:hover {
+            background: var(--bg-input);
+        }
+
+        .entry-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .entry-name {
+            font-weight: 500;
+        }
+
+        .entry-date {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .entry-amount {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 500;
+        }
+
+        .entry-amount.income {
+            color: var(--accent-green);
+        }
+
+        .entry-amount.expense {
+            color: var(--accent-red);
+        }
+
+        .entry-actions {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .btn-delete {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 0.25rem;
+            border-radius: 4px;
+            transition: color 0.2s, background 0.2s;
+        }
+
+        .btn-delete:hover {
+            color: var(--accent-red);
+            background: var(--accent-red-dim);
+        }
+
+        .timeline-card {
+            grid-column: 1 / -1;
+            animation-delay: 0.4s;
+        }
+
+        .timeline-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .timeline {
+            position: relative;
+        }
+
+        .timeline-item {
+            display: grid;
+            grid-template-columns: 80px 1fr 120px 120px;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            align-items: center;
+            transition: background 0.2s, transform 0.2s;
+        }
+
+        .timeline-item:hover {
+            background: var(--bg-input);
+        }
+
+        .timeline-item.transfer-needed {
+            border-left: 3px solid var(--accent-amber);
+            background: linear-gradient(90deg, var(--accent-amber-dim) 0%, var(--bg-secondary) 30%);
+        }
+
+        .timeline-item.negative {
+            border-left: 3px solid var(--accent-red);
+            background: linear-gradient(90deg, var(--accent-red-dim) 0%, var(--bg-secondary) 30%);
+        }
+
+        .timeline-date {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .timeline-description {
+            font-weight: 500;
+        }
+
+        .timeline-description small {
+            display: block;
+            font-weight: 400;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .timeline-change {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            text-align: right;
+        }
+
+        .timeline-balance {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            text-align: right;
+            font-weight: 600;
+        }
+
+        .transfer-alert {
+            background: linear-gradient(135deg, var(--accent-amber-dim) 0%, var(--bg-card) 100%);
+            border: 1px solid var(--accent-amber);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            animation: fadeInUp 0.6s ease-out 0.5s both;
+        }
+
+        .transfer-alert h3 {
+            color: var(--accent-amber);
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .transfer-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .transfer-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+        }
+
+        .transfer-date {
+            font-weight: 500;
+        }
+
+        .transfer-amount {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--accent-amber);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+        }
+
+        .empty-state svg {
+            width: 48px;
+            height: 48px;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 1.75rem;
+            }
+
+            .timeline-item {
+                grid-template-columns: 1fr 1fr;
+                gap: 0.5rem;
+            }
+
+            .balance-input input {
+                width: 150px;
+                font-size: 1.25rem;
+            }
+
+            .summary-stats {
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>💰 Cash Flow Planner</h1>
+            <p class="subtitle">Plan your checking account & savings transfers</p>
+        </header>
+
+        <div class="month-selector">
+            <select id="monthSelect"></select>
+            <input type="number" id="yearSelect" min="2020" max="2030" value="2025">
+        </div>
+
+        <div class="grid">
+            <div class="card balance-card">
+                <div class="balance-input-group">
+                    <label>Starting Checking Balance</label>
+                    <div class="balance-input">
+                        <span class="currency-symbol">$</span>
+                        <input type="number" id="startingBalance" placeholder="0.00" step="0.01">
+                    </div>
+                </div>
+                <div class="summary-stats">
+                    <div class="stat">
+                        <div class="stat-label">Total Income</div>
+                        <div class="stat-value positive" id="totalIncome">$0.00</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">Total Expenses</div>
+                        <div class="stat-value negative" id="totalExpenses">$0.00</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">End Balance</div>
+                        <div class="stat-value" id="endBalance">$0.00</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">Transfer Needed</div>
+                        <div class="stat-value warning" id="transferNeeded">$0.00</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <span class="icon icon-income">↓</span>
+                        Income
+                    </h2>
+                </div>
+                <form class="entry-form" id="incomeForm">
+                    <input type="text" placeholder="Description" id="incomeName" required>
+                    <input type="number" placeholder="Amount" id="incomeAmount" step="0.01" required>
+                    <input type="date" id="incomeDate" required>
+                    <button type="submit" class="btn btn-income">Add</button>
+                </form>
+                <div class="entries-list" id="incomeList">
+                    <div class="empty-state">No income entries yet</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <span class="icon icon-expense">↑</span>
+                        Expenses
+                    </h2>
+                </div>
+                <form class="entry-form" id="expenseForm">
+                    <input type="text" placeholder="Description" id="expenseName" required>
+                    <input type="number" placeholder="Amount" id="expenseAmount" step="0.01" required>
+                    <input type="date" id="expenseDate" required>
+                    <button type="submit" class="btn btn-expense">Add</button>
+                </form>
+                <div class="entries-list" id="expenseList">
+                    <div class="empty-state">No expense entries yet</div>
+                </div>
+            </div>
+
+            <div class="card timeline-card" id="transferAlert" style="display: none;">
+                <h3>⚠️ Recommended Savings Transfers</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                    Transfer these amounts before the listed dates to avoid negative balance:
+                </p>
+                <div class="transfer-list" id="transferList"></div>
+            </div>
+
+            <div class="card timeline-card">
+                <div class="timeline-header">
+                    <h2 class="card-title">📊 Cash Flow Timeline</h2>
+                </div>
+                <div class="timeline" id="timeline">
+                    <div class="empty-state">
+                        Add income and expenses to see your cash flow timeline
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State
+        let state = {
+            startingBalance: 0,
+            incomes: [],
+            expenses: [],
+            month: new Date().getMonth(),
+            year: new Date().getFullYear()
+        };
+
+        // DOM Elements
+        const monthSelect = document.getElementById('monthSelect');
+        const yearSelect = document.getElementById('yearSelect');
+        const startingBalanceInput = document.getElementById('startingBalance');
+        const incomeForm = document.getElementById('incomeForm');
+        const expenseForm = document.getElementById('expenseForm');
+        const incomeList = document.getElementById('incomeList');
+        const expenseList = document.getElementById('expenseList');
+        const timeline = document.getElementById('timeline');
+        const transferAlert = document.getElementById('transferAlert');
+        const transferList = document.getElementById('transferList');
+
+        // Initialize month selector
+        const months = ['January', 'February', 'March', 'April', 'May', 'June', 
+                        'July', 'August', 'September', 'October', 'November', 'December'];
+        months.forEach((month, i) => {
+            const option = document.createElement('option');
+            option.value = i;
+            option.textContent = month;
+            monthSelect.appendChild(option);
+        });
+        monthSelect.value = state.month;
+        yearSelect.value = state.year;
+
+        // Load from localStorage
+        function loadState() {
+            const key = `cashflow-${state.year}-${state.month}`;
+            const saved = localStorage.getItem(key);
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                state.startingBalance = parsed.startingBalance || 0;
+                state.incomes = parsed.incomes || [];
+                state.expenses = parsed.expenses || [];
+            } else {
+                state.startingBalance = 0;
+                state.incomes = [];
+                state.expenses = [];
+            }
+            startingBalanceInput.value = state.startingBalance || '';
+        }
+
+        // Save to localStorage
+        function saveState() {
+            const key = `cashflow-${state.year}-${state.month}`;
+            localStorage.setItem(key, JSON.stringify({
+                startingBalance: state.startingBalance,
+                incomes: state.incomes,
+                expenses: state.expenses
+            }));
+        }
+
+        // Format currency
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD'
+            }).format(amount);
+        }
+
+        // Format date
+        function formatDate(dateStr) {
+            const date = new Date(dateStr + 'T00:00:00');
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        }
+
+        // Generate unique ID
+        function generateId() {
+            return Date.now().toString(36) + Math.random().toString(36).substr(2);
+        }
+
+        // Render income list
+        function renderIncomes() {
+            if (state.incomes.length === 0) {
+                incomeList.innerHTML = '<div class="empty-state">No income entries yet</div>';
+                return;
+            }
+            
+            const sorted = [...state.incomes].sort((a, b) => new Date(a.date) - new Date(b.date));
+            incomeList.innerHTML = sorted.map(income => `
+                <div class="entry-item">
+                    <div class="entry-info">
+                        <span class="entry-name">${income.name}</span>
+                        <span class="entry-date">${formatDate(income.date)}</span>
+                    </div>
+                    <div class="entry-actions">
+                        <span class="entry-amount income">+${formatCurrency(income.amount)}</span>
+                        <button class="btn-delete" onclick="deleteIncome('${income.id}')" title="Delete">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M18 6L6 18M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Render expense list
+        function renderExpenses() {
+            if (state.expenses.length === 0) {
+                expenseList.innerHTML = '<div class="empty-state">No expense entries yet</div>';
+                return;
+            }
+            
+            const sorted = [...state.expenses].sort((a, b) => new Date(a.date) - new Date(b.date));
+            expenseList.innerHTML = sorted.map(expense => `
+                <div class="entry-item">
+                    <div class="entry-info">
+                        <span class="entry-name">${expense.name}</span>
+                        <span class="entry-date">${formatDate(expense.date)}</span>
+                    </div>
+                    <div class="entry-actions">
+                        <span class="entry-amount expense">-${formatCurrency(expense.amount)}</span>
+                        <button class="btn-delete" onclick="deleteExpense('${expense.id}')" title="Delete">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M18 6L6 18M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Calculate timeline and transfers
+        function calculateTimeline() {
+            const events = [];
+            
+            // Add starting balance event
+            const firstOfMonth = new Date(state.year, state.month, 1);
+            events.push({
+                date: firstOfMonth.toISOString().split('T')[0],
+                description: 'Starting Balance',
+                type: 'balance',
+                amount: state.startingBalance
+            });
+
+            // Add all incomes
+            state.incomes.forEach(income => {
+                events.push({
+                    date: income.date,
+                    description: income.name,
+                    type: 'income',
+                    amount: income.amount
+                });
+            });
+
+            // Add all expenses
+            state.expenses.forEach(expense => {
+                events.push({
+                    date: expense.date,
+                    description: expense.name,
+                    type: 'expense',
+                    amount: expense.amount
+                });
+            });
+
+            // Sort by date
+            events.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            // Calculate running balance and find transfer points
+            let balance = 0;
+            let lowestBalance = Infinity;
+            const transfers = [];
+            let totalIncome = 0;
+            let totalExpenses = 0;
+
+            const timelineData = events.map((event, index) => {
+                let change = 0;
+                
+                if (event.type === 'balance') {
+                    balance = event.amount;
+                } else if (event.type === 'income') {
+                    change = event.amount;
+                    balance += event.amount;
+                    totalIncome += event.amount;
+                } else if (event.type === 'expense') {
+                    change = -event.amount;
+                    balance -= event.amount;
+                    totalExpenses += event.amount;
+                }
+
+                // Track if balance goes negative
+                if (balance < 0 && balance < lowestBalance) {
+                    lowestBalance = balance;
+                    
+                    // Find or update transfer needed for this date
+                    const existingTransfer = transfers.find(t => t.date === event.date);
+                    if (existingTransfer) {
+                        existingTransfer.amount = Math.ceil(Math.abs(balance) / 100) * 100;
+                    } else {
+                        transfers.push({
+                            date: event.date,
+                            amount: Math.ceil(Math.abs(balance) / 100) * 100,
+                            description: `Before: ${event.description}`
+                        });
+                    }
+                }
+
+                return {
+                    ...event,
+                    change,
+                    balance,
+                    isNegative: balance < 0
+                };
+            });
+
+            // Calculate minimum total transfer needed
+            let runningBalance = state.startingBalance;
+            let minTransferTotal = 0;
+            
+            events.forEach(event => {
+                if (event.type === 'income') {
+                    runningBalance += event.amount;
+                } else if (event.type === 'expense') {
+                    runningBalance -= event.amount;
+                }
+                
+                if (runningBalance < 0) {
+                    minTransferTotal = Math.max(minTransferTotal, Math.abs(runningBalance));
+                }
+            });
+
+            return {
+                timeline: timelineData,
+                transfers: consolidateTransfers(events, state.startingBalance),
+                totalIncome,
+                totalExpenses,
+                endBalance: balance,
+                transferNeeded: Math.ceil(minTransferTotal / 100) * 100
+            };
+        }
+
+        // Consolidate transfers to show minimum needed by each date
+        function consolidateTransfers(events, startBalance) {
+            const transfers = [];
+            let balance = startBalance;
+            let needsTransfer = false;
+            
+            events.forEach(event => {
+                if (event.type === 'income') {
+                    balance += event.amount;
+                } else if (event.type === 'expense') {
+                    balance -= event.amount;
+                }
+                
+                if (balance < 0 && !needsTransfer) {
+                    needsTransfer = true;
+                    transfers.push({
+                        date: event.date,
+                        beforeEvent: event.description,
+                        amount: Math.ceil(Math.abs(balance) / 100) * 100
+                    });
+                } else if (balance < 0 && needsTransfer) {
+                    // Update the last transfer if balance goes more negative
+                    const lastTransfer = transfers[transfers.length - 1];
+                    const newAmount = Math.ceil(Math.abs(balance) / 100) * 100;
+                    if (newAmount > lastTransfer.amount) {
+                        lastTransfer.amount = newAmount;
+                    }
+                }
+            });
+
+            return transfers;
+        }
+
+        // Render timeline
+        function renderTimeline() {
+            const { timeline: timelineData, transfers, totalIncome, totalExpenses, endBalance, transferNeeded } = calculateTimeline();
+
+            // Update summary stats
+            document.getElementById('totalIncome').textContent = formatCurrency(totalIncome);
+            document.getElementById('totalExpenses').textContent = formatCurrency(totalExpenses);
+            
+            const endBalanceEl = document.getElementById('endBalance');
+            endBalanceEl.textContent = formatCurrency(endBalance);
+            endBalanceEl.className = 'stat-value ' + (endBalance >= 0 ? 'positive' : 'negative');
+            
+            document.getElementById('transferNeeded').textContent = formatCurrency(transferNeeded);
+
+            // Render transfer alerts
+            if (transfers.length > 0) {
+                transferAlert.style.display = 'block';
+                transferList.innerHTML = transfers.map(t => `
+                    <div class="transfer-item">
+                        <div>
+                            <div class="transfer-date">By ${formatDate(t.date)}</div>
+                            <small style="color: var(--text-muted)">Before: ${t.beforeEvent}</small>
+                        </div>
+                        <div class="transfer-amount">${formatCurrency(t.amount)}</div>
+                    </div>
+                `).join('');
+            } else {
+                transferAlert.style.display = 'none';
+            }
+
+            // Render timeline
+            if (timelineData.length <= 1) {
+                timeline.innerHTML = '<div class="empty-state">Add income and expenses to see your cash flow timeline</div>';
+                return;
+            }
+
+            timeline.innerHTML = `
+                <div style="display: grid; grid-template-columns: 80px 1fr 120px 120px; gap: 1rem; padding: 0.5rem 1rem; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">
+                    <div>Date</div>
+                    <div>Description</div>
+                    <div style="text-align: right;">Change</div>
+                    <div style="text-align: right;">Balance</div>
+                </div>
+                ${timelineData.map(item => `
+                    <div class="timeline-item ${item.isNegative ? 'negative' : ''} ${item.balance < 100 && item.balance >= 0 ? 'transfer-needed' : ''}">
+                        <div class="timeline-date">${formatDate(item.date)}</div>
+                        <div class="timeline-description">
+                            ${item.description}
+                            ${item.type !== 'balance' ? `<small>${item.type}</small>` : ''}
+                        </div>
+                        <div class="timeline-change" style="color: ${item.change > 0 ? 'var(--accent-green)' : item.change < 0 ? 'var(--accent-red)' : 'var(--text-muted)'}">
+                            ${item.change !== 0 ? (item.change > 0 ? '+' : '') + formatCurrency(item.change) : '—'}
+                        </div>
+                        <div class="timeline-balance" style="color: ${item.balance < 0 ? 'var(--accent-red)' : item.balance < 100 ? 'var(--accent-amber)' : 'var(--text-primary)'}">
+                            ${formatCurrency(item.balance)}
+                        </div>
+                    </div>
+                `).join('')}
+            `;
+        }
+
+        // Delete income
+        function deleteIncome(id) {
+            state.incomes = state.incomes.filter(i => i.id !== id);
+            saveState();
+            renderIncomes();
+            renderTimeline();
+        }
+
+        // Delete expense
+        function deleteExpense(id) {
+            state.expenses = state.expenses.filter(e => e.id !== id);
+            saveState();
+            renderExpenses();
+            renderTimeline();
+        }
+
+        // Make delete functions global
+        window.deleteIncome = deleteIncome;
+        window.deleteExpense = deleteExpense;
+
+        // Event Listeners
+        monthSelect.addEventListener('change', (e) => {
+            state.month = parseInt(e.target.value);
+            loadState();
+            renderAll();
+            updateDateInputDefaults();
+        });
+
+        yearSelect.addEventListener('change', (e) => {
+            state.year = parseInt(e.target.value);
+            loadState();
+            renderAll();
+            updateDateInputDefaults();
+        });
+
+        startingBalanceInput.addEventListener('input', (e) => {
+            state.startingBalance = parseFloat(e.target.value) || 0;
+            saveState();
+            renderTimeline();
+        });
+
+        incomeForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('incomeName').value;
+            const amount = parseFloat(document.getElementById('incomeAmount').value);
+            const date = document.getElementById('incomeDate').value;
+
+            state.incomes.push({ id: generateId(), name, amount, date });
+            saveState();
+            renderIncomes();
+            renderTimeline();
+
+            // Reset form
+            document.getElementById('incomeName').value = '';
+            document.getElementById('incomeAmount').value = '';
+        });
+
+        expenseForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('expenseName').value;
+            const amount = parseFloat(document.getElementById('expenseAmount').value);
+            const date = document.getElementById('expenseDate').value;
+
+            state.expenses.push({ id: generateId(), name, amount, date });
+            saveState();
+            renderExpenses();
+            renderTimeline();
+
+            // Reset form
+            document.getElementById('expenseName').value = '';
+            document.getElementById('expenseAmount').value = '';
+        });
+
+        // Update date input defaults based on selected month
+        function updateDateInputDefaults() {
+            const firstOfMonth = new Date(state.year, state.month, 1);
+            const defaultDate = firstOfMonth.toISOString().split('T')[0];
+            document.getElementById('incomeDate').value = defaultDate;
+            document.getElementById('expenseDate').value = defaultDate;
+        }
+
+        // Render all
+        function renderAll() {
+            renderIncomes();
+            renderExpenses();
+            renderTimeline();
+        }
+
+        // Initialize
+        loadState();
+        updateDateInputDefaults();
+        renderAll();
+    </script>
+</body>
+</html>
+
