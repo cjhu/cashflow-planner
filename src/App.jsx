@@ -235,27 +235,31 @@ function App() {
           </div>
         </div>
 
-        {/* Entry Cards */}
-        <EntryCard
-          title="Income"
-          type="income"
-          entries={incomes}
-          onAdd={handleAddIncome}
-          onDelete={handleDeleteIncome}
-          defaultDate={defaultDate}
-        />
+        <div className="left-column">
+          {/* Entry Cards */}
+          <EntryCard
+            title="Income"
+            type="income"
+            entries={incomes}
+            onAdd={handleAddIncome}
+            onDelete={handleDeleteIncome}
+            defaultDate={defaultDate}
+          />
 
-        <EntryCard
-          title="Expenses"
-          type="expense"
-          entries={expenses}
-          onAdd={handleAddExpense}
-          onDelete={handleDeleteExpense}
-          defaultDate={defaultDate}
-        />
+          <EntryCard
+            title="Expenses"
+            type="expense"
+            entries={expenses}
+            onAdd={handleAddExpense}
+            onDelete={handleDeleteExpense}
+            defaultDate={defaultDate}
+          />
+        </div>
 
-        {/* Timeline */}
-        <Timeline data={timelineData} transfers={transfers} />
+        <div className="right-column">
+          {/* Timeline */}
+          <Timeline data={timelineData} transfers={transfers} />
+        </div>
       </div>
     </div>
   );

@@ -32,6 +32,13 @@ header h1 {
   gap: 1.5rem;
 }
 
+.left-column,
+.right-column {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
 @media (max-width: 900px) {
   .main-grid {
     grid-template-columns: 1fr;
