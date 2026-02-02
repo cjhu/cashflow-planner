@@ -108,7 +108,7 @@ function App() {
       };
     });
 
-    // Calculate transfers needed
+    // Calculate transfers needed (apply suggested transfers to avoid double counting)
     const transfersNeeded = [];
     let runningBalance = startingBalance;
     
@@ -125,7 +125,9 @@ function App() {
         
         if (existingIdx >= 0) {
           if (amount > transfersNeeded[existingIdx].amount) {
+            const delta = amount - transfersNeeded[existingIdx].amount;
             transfersNeeded[existingIdx].amount = amount;
+            runningBalance += delta;
           }
         } else {
           transfersNeeded.push({
@@ -133,6 +135,7 @@ function App() {
             beforeEvent: event.description,
             amount,
           });
+          runningBalance += amount;
         }
       }
     });
