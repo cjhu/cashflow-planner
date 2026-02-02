@@ -39,9 +39,21 @@ header h1 {
   gap: 1.5rem;
 }
 
+.right-column {
+  position: sticky;
+  top: 1.5rem;
+  align-self: start;
+  height: calc(100vh - 3rem);
+}
+
 @media (max-width: 900px) {
   .main-grid {
     grid-template-columns: 1fr;
+  }
+
+  .right-column {
+    position: static;
+    height: auto;
   }
 }
 

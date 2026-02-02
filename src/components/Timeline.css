@@ -1,6 +1,10 @@
 .timeline-card {
   grid-column: 1 / -1;
   animation: fadeInUp 0.6s ease-out 0.4s both;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  height: 100%;
 }
 
 /* Transfer Alert */
@@ -72,6 +76,9 @@
   border: 1px solid var(--border);
   border-radius: 16px;
   padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
 .timeline-title {
@@ -81,13 +88,15 @@
 }
 
 .timeline-scroll {
-  max-height: 500px;
+  flex: 1;
+  min-height: 0;
   overflow: hidden;
 }
 
 .timeline-viewport {
   width: 100%;
   height: 100%;
+  overflow: auto;
 }
 
 .timeline-scrollbar {
